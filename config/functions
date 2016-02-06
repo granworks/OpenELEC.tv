@@ -419,6 +419,7 @@ show_config() {
   config_message="$config_message\n - Kodi SSH client support:\t\t $KODI_SSHLIB_SUPPORT"
   config_message="$config_message\n - Kodi UPNP support:\t\t\t $KODI_UPNP_SUPPORT"
   config_message="$config_message\n - Kodi Webserver support:\t\t $KODI_WEBSERVER_SUPPORT"
+  config_message="$config_message\n - Emby Server support:\t\t\t $EMBY"
 
 
   for config_skin in $SKINS; do
