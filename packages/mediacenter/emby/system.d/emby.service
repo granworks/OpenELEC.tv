@@ -1,0 +1,8 @@
+[Unit]
+Descriptions=Emby Media Server
+
+[Service]
+ExecStart=/usr/bin/mono /opt/emby/MediaBrowser.Server.Mono.exe -programdata /storage/emby
+
+[Install]
+WantedBy=multi-user.target
