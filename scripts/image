@@ -157,6 +157,9 @@ fi
 # LCD support
   [ ! "$LCD_DRIVER" = "none" ] && $SCRIPTS/install lcdproc
 
+# Emby support
+  [ "$EMBY" = "yes" ] && $SCRIPTS/install emby
+
 # Installer support
   [ "$INSTALLER_SUPPORT" = "yes" ] && $SCRIPTS/install installer
 
