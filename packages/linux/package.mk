@@ -31,7 +31,7 @@ PKG_SHORTDESC="linux26: The Linux kernel 2.6 precompiled kernel binary image and
 PKG_LONGDESC="This package contains a precompiled kernel image and the modules."
 case "$LINUX" in
   amlogic)
-    PKG_VERSION="amlogic-3.10-ca65e57"
+    PKG_VERSION="amlogic-3.10-0f60813"
     PKG_URL="$DISTRO_SRC/$PKG_NAME-$PKG_VERSION.tar.xz"
     ;;
   imx6)
@@ -40,7 +40,7 @@ case "$LINUX" in
     PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET imx6-status-led imx6-soc-fan"
     ;;
   *)
-    PKG_VERSION="4.4.2"
+    PKG_VERSION="4.4.4"
     PKG_URL="http://www.kernel.org/pub/linux/kernel/v4.x/$PKG_NAME-$PKG_VERSION.tar.xz"
     ;;
 esac
@@ -48,13 +48,7 @@ esac
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
 
-PKG_MAKE_OPTS_HOST="ARCH=$TARGET_ARCH headers_check"
-
-if [ "$BOOTLOADER" = "u-boot" ]; then
-  KERNEL_IMAGE="$KERNEL_UBOOT_TARGET"
-else
-  KERNEL_IMAGE="bzImage"
-fi
+PKG_MAKE_OPTS_HOST="ARCH=$TARGET_KERNEL_ARCH headers_check"
 
 if [ "$BUILD_ANDROID_BOOTIMG" = "yes" ]; then
   PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET mkbootimg:host"
@@ -69,7 +63,7 @@ post_patch() {
 
   sed -i -e "s|^HOSTCC[[:space:]]*=.*$|HOSTCC = $HOST_CC|" \
          -e "s|^HOSTCXX[[:space:]]*=.*$|HOSTCXX = $HOST_CXX|" \
-         -e "s|^ARCH[[:space:]]*?=.*$|ARCH = $TARGET_ARCH|" \
+         -e "s|^ARCH[[:space:]]*?=.*$|ARCH = $TARGET_KERNEL_ARCH|" \
          -e "s|^CROSS_COMPILE[[:space:]]*?=.*$|CROSS_COMPILE = $TARGET_PREFIX|" \
          $PKG_BUILD/Makefile
 
@@ -112,7 +106,7 @@ post_patch() {
 }
 
 makeinstall_host() {
-  make ARCH=$TARGET_ARCH INSTALL_HDR_PATH=dest headers_install
+  make ARCH=$TARGET_KERNEL_ARCH INSTALL_HDR_PATH=dest headers_install
   mkdir -p $SYSROOT_PREFIX/usr/include
     cp -R dest/include/* $SYSROOT_PREFIX/usr/include
 }
@@ -145,28 +139,28 @@ make_target() {
     done
   fi
 
-  LDFLAGS="" make $KERNEL_IMAGE $KERNEL_MAKE_EXTRACMD
+  LDFLAGS="" make $KERNEL_TARGET $KERNEL_MAKE_EXTRACMD
 
   if [ "$BUILD_ANDROID_BOOTIMG" = "yes" ]; then
-    LDFLAGS="" mkbootimg --kernel arch/arm/boot/$KERNEL_IMAGE --ramdisk $ROOT/$BUILD/image/initramfs.cpio \
-      --second "$ANDROID_BOOTIMG_SECOND" --output arch/arm/boot/boot.img
-    mv -f arch/arm/boot/boot.img arch/arm/boot/$KERNEL_IMAGE
+    LDFLAGS="" mkbootimg --kernel arch/$TARGET_KERNEL_ARCH/boot/$KERNEL_TARGET --ramdisk $ROOT/$BUILD/image/initramfs.cpio \
+      --second "$ANDROID_BOOTIMG_SECOND" --output arch/$TARGET_KERNEL_ARCH/boot/boot.img
+    mv -f arch/$TARGET_KERNEL_ARCH/boot/boot.img arch/$TARGET_KERNEL_ARCH/boot/$KERNEL_TARGET
   fi
 }
 
 makeinstall_target() {
   if [ "$BOOTLOADER" = "u-boot" ]; then
     mkdir -p $INSTALL/usr/share/bootloader
-    for dtb in arch/arm/boot/dts/*.dtb; do
+    for dtb in arch/$TARGET_KERNEL_ARCH/boot/dts/*.dtb; do
       cp $dtb $INSTALL/usr/share/bootloader 2>/dev/null || :
     done
   elif [ "$BOOTLOADER" = "bcm2835-bootloader" ]; then
     mkdir -p $INSTALL/usr/share/bootloader/overlays
-    cp -p arch/arm/boot/dts/*.dtb $INSTALL/usr/share/bootloader
-    for dtb in arch/arm/boot/dts/overlays/*.dtb; do
+    cp -p arch/$TARGET_KERNEL_ARCH/boot/dts/*.dtb $INSTALL/usr/share/bootloader
+    for dtb in arch/$TARGET_KERNEL_ARCH/boot/dts/overlays/*.dtb; do
       cp $dtb $INSTALL/usr/share/bootloader/overlays 2>/dev/null || :
     done
-    cp -p arch/arm/boot/dts/overlays/README $INSTALL/usr/share/bootloader/overlays
+    cp -p arch/$TARGET_KERNEL_ARCH/boot/dts/overlays/README $INSTALL/usr/share/bootloader/overlays
   fi
 }
 
@@ -198,4 +192,7 @@ makeinstall_init() {
 post_install() {
   mkdir -p $INSTALL/lib/firmware/
     ln -sf /storage/.config/firmware/ $INSTALL/lib/firmware/updates
+
+  # bluez looks in /etc/firmware/
+    ln -sf /lib/firmware/ $INSTALL/etc/firmware
 }
