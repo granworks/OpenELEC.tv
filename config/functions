@@ -22,6 +22,11 @@ setup_toolchain() {
     export PKG_CONFIG_LIBDIR="$TARGET_PKG_CONFIG_LIBDIR"
     export PKG_CONFIG_SYSROOT_DIR="$TARGET_PKG_CONFIG_SYSROOT_DIR"
 
+  # set python defaults
+    export _python_sysroot="$SYSROOT_PREFIX"
+    export _python_prefix=/usr
+    export _python_exec_prefix=/usr
+
   # set CMAKE configfile for target
     export CMAKE_CONF=$ROOT/$TOOLCHAIN/etc/cmake-$TARGET_NAME.conf
 
@@ -354,7 +359,6 @@ show_config() {
   config_message="$config_message\n - ATV Remote support:\t\t\t $ATVCLIENT_SUPPORT"
   config_message="$config_message\n - CEC Adapter support:\t\t\t $CEC_SUPPORT"
   config_message="$config_message\n - IRTrans support:\t\t\t $IRSERVER_SUPPORT"
-  config_message="$config_message\n - Kodi Joystick support:\t\t $JOYSTICK_SUPPORT"
 
   # Misc. hardware configuration
 
@@ -388,6 +392,8 @@ show_config() {
   config_message="$config_message\n - SAMBA mounting support:\t\t $SAMBA_SUPPORT"
   config_message="$config_message\n - SAMBA server support:\t\t $SAMBA_SERVER"
   config_message="$config_message\n - SFTP server support:\t\t\t $SFTP_SERVER"
+  config_message="$config_message\n - PPTP support:\t\t\t $PPTP_SUPPORT"
+  config_message="$config_message\n - OpenVPN support:\t\t\t $OPENVPN_SUPPORT"
 
   # OS configuration
 
@@ -442,12 +448,12 @@ show_config() {
   config_message="$config_message\n - Kodi Webserver support:\t\t $KODI_WEBSERVER_SUPPORT"
   config_message="$config_message\n - Emby Server support:\t\t\t $EMBY"
 
-
   for config_skin in $SKINS; do
     config_message="$config_message\n - Include Skin:\t\t\t $config_skin"
   done
 
   config_message="$config_message\n - Default Skin:\t\t\t $SKIN_DEFAULT"
+  config_message="$config_message\n - Remove shipped skins:\t\t $SKIN_REMOVE_SHIPPED"
   config_message="$config_message\n - Include extra fonts:\t\t\t $KODI_EXTRA_FONTS"
 
   config_message="$config_message\n"

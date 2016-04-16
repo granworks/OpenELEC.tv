@@ -23,7 +23,7 @@ PKG_LICENSE="GPL"
 PKG_SITE="http://www.kernel.org"
 PKG_DEPENDS_HOST="ccache:host"
 PKG_DEPENDS_TARGET="toolchain cpio:host kmod:host pciutils xz:host wireless-regdb keyutils"
-PKG_DEPENDS_INIT="toolchain"
+PKG_DEPENDS_INIT="toolchain cpu-firmware:init"
 PKG_NEED_UNPACK="$LINUX_DEPENDS"
 PKG_PRIORITY="optional"
 PKG_SECTION="linux"
@@ -31,16 +31,17 @@ PKG_SHORTDESC="linux26: The Linux kernel 2.6 precompiled kernel binary image and
 PKG_LONGDESC="This package contains a precompiled kernel image and the modules."
 case "$LINUX" in
   amlogic)
-    PKG_VERSION="amlogic-3.10-0f60813"
+    PKG_VERSION="amlogic-3.10-c8d5b2f"
     PKG_URL="$DISTRO_SRC/$PKG_NAME-$PKG_VERSION.tar.xz"
     ;;
   imx6)
-    PKG_VERSION="cuboxi-3.14-ea83bda"
-    PKG_URL="$DISTRO_SRC/$PKG_NAME-$PKG_VERSION.tar.xz"
+    PKG_VERSION="4386797"
+    PKG_GIT_URL="https://github.com/SolidRun/linux-fslc.git"
+    PKG_GIT_BRANCH="3.14-1.0.x-mx6-sr"
     PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET imx6-status-led imx6-soc-fan"
     ;;
   *)
-    PKG_VERSION="4.4.4"
+    PKG_VERSION="4.5"
     PKG_URL="http://www.kernel.org/pub/linux/kernel/v4.x/$PKG_NAME-$PKG_VERSION.tar.xz"
     ;;
 esac
@@ -154,10 +155,10 @@ makeinstall_target() {
     for dtb in arch/$TARGET_KERNEL_ARCH/boot/dts/*.dtb; do
       cp $dtb $INSTALL/usr/share/bootloader 2>/dev/null || :
     done
-  elif [ "$BOOTLOADER" = "bcm2835-bootloader" ]; then
+  elif [ "$BOOTLOADER" = "bcm2835-firmware" ]; then
     mkdir -p $INSTALL/usr/share/bootloader/overlays
     cp -p arch/$TARGET_KERNEL_ARCH/boot/dts/*.dtb $INSTALL/usr/share/bootloader
-    for dtb in arch/$TARGET_KERNEL_ARCH/boot/dts/overlays/*.dtb; do
+    for dtb in arch/$TARGET_KERNEL_ARCH/boot/dts/overlays/*.dtbo; do
       cp $dtb $INSTALL/usr/share/bootloader/overlays 2>/dev/null || :
     done
     cp -p arch/$TARGET_KERNEL_ARCH/boot/dts/overlays/README $INSTALL/usr/share/bootloader/overlays

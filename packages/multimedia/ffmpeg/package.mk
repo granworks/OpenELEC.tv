@@ -17,13 +17,13 @@
 ################################################################################
 
 PKG_NAME="ffmpeg"
-PKG_VERSION="2.8.6"
+PKG_VERSION="3.0.1"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="LGPLv2.1+"
 PKG_SITE="https://ffmpeg.org"
 PKG_URL="https://ffmpeg.org/releases/${PKG_NAME}-${PKG_VERSION}.tar.gz"
-PKG_DEPENDS_TARGET="toolchain yasm:host zlib bzip2 libvorbis libressl dcadec"
+PKG_DEPENDS_TARGET="toolchain yasm:host zlib bzip2 libvorbis libressl speex"
 PKG_PRIORITY="optional"
 PKG_SECTION="multimedia"
 PKG_SHORTDESC="FFmpeg is a complete, cross-platform solution to record, convert and stream audio and video."
@@ -42,7 +42,7 @@ else
   FFMPEG_VAAPI="--disable-vaapi"
 fi
 
-if [ "$VDPAU_SUPPORT" = yes ]; then
+if [ "$VDPAU_SUPPORT" = "yes" -a "$DISPLAYSERVER" = "x11" ]; then
   PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET libvdpau"
   FFMPEG_VDPAU="--enable-vdpau"
 else
@@ -55,8 +55,8 @@ else
   FFMPEG_DEBUG="--disable-debug --enable-stripping"
 fi
 
-if [ "$KODIPLAYER_DRIVER" = "bcm2835-driver" ]; then
-  PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET bcm2835-driver"
+if [ "$KODIPLAYER_DRIVER" = "bcm2835-firmware" ]; then
+  PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET bcm2835-firmware"
 fi
 
 case "$TARGET_ARCH" in
@@ -94,7 +94,7 @@ pre_configure_target() {
 # ffmpeg fails running with GOLD support
   strip_gold
 
-  if [ "$KODIPLAYER_DRIVER" = "bcm2835-driver" ]; then
+  if [ "$KODIPLAYER_DRIVER" = "bcm2835-firmware" ]; then
     export CFLAGS="-I$SYSROOT_PREFIX/usr/include/interface/vcos/pthreads -I$SYSROOT_PREFIX/usr/include/interface/vmcs_host/linux -DRPI=1 $CFLAGS"
     export FFMPEG_LIBS="-lbcm_host -lvcos -lvchiq_arm -lmmal -lmmal_core -lmmal_util -lvcsm"
   fi
@@ -194,7 +194,7 @@ configure_target() {
               --disable-libopencore-amrwb \
               --disable-libopencv \
               --disable-libdc1394 \
-              --enable-libdcadec \
+              --disable-libdcadec \
               --disable-libfaac \
               --disable-libfreetype \
               --disable-libgsm \
@@ -203,9 +203,8 @@ configure_target() {
               --disable-libopenjpeg \
               --disable-librtmp \
               --disable-libschroedinger \
-              --disable-libspeex \
+              --enable-libspeex \
               --disable-libtheora \
-              --disable-libvo-aacenc \
               --disable-libvo-amrwbenc \
               --enable-libvorbis --enable-muxer=ogg --enable-encoder=libvorbis \
               --disable-libvpx \
