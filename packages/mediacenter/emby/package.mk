@@ -42,11 +42,11 @@ make_target() {
 }
 
 makeinstall_target() {
-  mkdir -p $INSTALL/opt;
-  cp -a emby $INSTALL/opt/
+  mkdir -p $INSTALL/opt/$PKG_NAME
+  cp -a * $INSTALL/opt/$PKG_NAME
 
-  sed -e "s,libMagickWand-6.Q8.so,/usr/lib/libMagickWand-6.Q8.so,g" -i $INSTALL/opt/emby/ImageMagickSharp.dll.config
-  sed -e "s,libsqlite3.so,/usr/lib/libsqlite3.so,g" -i $INSTALL/opt/emby/System.Data.SQLite.dll.config
+  sed -e "s,libMagickWand-6.Q8.so,/usr/lib/libMagickWand-6.Q8.so,g" -i $INSTALL/opt/$PKG_NAME/ImageMagickSharp.dll.config
+  sed -e "s,libsqlite3.so,/usr/lib/libsqlite3.so,g" -i $INSTALL/opt/$PKG_NAME/System.Data.SQLite.dll.config
 }
 
 post_install() {
